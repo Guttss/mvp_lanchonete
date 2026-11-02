@@ -1,0 +1,15 @@
+# Ficheiros do Editor / IDE
+.idea/
+.vscode/
+*.iml
+
+# Back-end (Spring Boot)
+backend/src/main/resources/application.properties
+backend/target/
+**/application.properties
+
+# Front-end (React)
+frontend/node_modules/
+frontend/dist/
+.env
+.env.*
