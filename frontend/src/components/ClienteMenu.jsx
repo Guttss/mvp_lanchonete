@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Clock, Plus, Minus, CheckCircle2 } from 'lucide-react';
+import EventosMenu from "./EventoMenu.jsx";
 
 export default function ClienteMenu() {
   const [produtos, setProdutos] = useState([]);
@@ -9,7 +10,9 @@ export default function ClienteMenu() {
   const [horarioRetirada, setHorarioRetirada] = useState('');
   const [mostrarCheckout, setMostrarCheckout] = useState(false);
 
-  // VARIÁVEL DECLARADA CORRETAMENTE AQUI:
+  // Corrigido o nome da função setAbaAtiva
+  const [abaAtiva, setAbaAtiva] = useState('lanches');
+
   const [pedidoEnviado, setPedidoEnviado] = useState(null);
 
   const API_URL = import.meta.env.VITE_API_URL;
@@ -94,7 +97,7 @@ export default function ClienteMenu() {
   const categorias = ['Salgados', 'Bebidas', 'Doces', 'Porções', 'Combos', 'Variados'];
 
   return (
-      <div className="max-w-md mx-auto relative pb-32 animate-fade-in p-4">
+      <div className="max-w-5xl mx-auto relative pb-32 animate-fade-in p-4">
 
         {/* TELA DE SUCESSO / MENSAGEM PARA O CLIENTE */}
         {pedidoEnviado && (
@@ -126,57 +129,80 @@ export default function ClienteMenu() {
             </div>
         )}
 
-        {/* Navegação de Categorias */}
-        <div className="flex gap-3 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-          {categorias.map(cat => (
-              <button
-                  key={cat} onClick={() => setCategoriaAtiva(cat)}
-                  className={`px-5 py-2.5 rounded-2xl whitespace-nowrap font-bold transition-all shadow-sm ${
-                      categoriaAtiva === cat ? 'bg-orange-500 text-white scale-105' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
-                  }`}
-              >
-                {cat}
-              </button>
-          ))}
+        {/* MENU DE ABAS */}
+        <div className="flex bg-gray-100 p-1 rounded-2xl mb-6 mx-4 md:mx-0">
+          <button
+              onClick={() => setAbaAtiva('lanches')}
+              className={`flex-1 py-3 text-sm font-black rounded-xl transition-all ${abaAtiva === 'lanches' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            Consumo / Retirada
+          </button>
+          <button
+              onClick={() => setAbaAtiva('eventos')}
+              className={`flex-1 py-3 text-sm font-black rounded-xl transition-all ${abaAtiva === 'eventos' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            Eventos e Encomendas
+          </button>
         </div>
 
-        {/* Lista de Produtos */}
-        <div className="space-y-4">
-          {produtos.length === 0 && (
-              <div className="text-center mt-10 p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                <p className="text-gray-500 font-medium">O cardápio está a ser atualizado...</p>
+        {/* RENDERIZAÇÃO CONDICIONAL DAS ABAS */}
+        {abaAtiva === 'lanches' ? (
+            <>
+              {/* Navegação de Categorias */}
+              <div className="flex gap-3 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+                {categorias.map(cat => (
+                    <button
+                        key={cat} onClick={() => setCategoriaAtiva(cat)}
+                        className={`px-5 py-2.5 rounded-2xl whitespace-nowrap font-bold transition-all shadow-sm ${
+                            categoriaAtiva === cat ? 'bg-orange-500 text-white scale-105' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                        }`}
+                    >
+                      {cat}
+                    </button>
+                ))}
               </div>
-          )}
 
-          {produtos.filter(p => p.categoria === categoriaAtiva).map(produto => {
-            const qtdNoCarrinho = carrinho.find(i => i.id === produto.id)?.quantidade || 0;
-            return (
-                <div key={produto.id} className={`flex justify-between items-center bg-white p-5 rounded-2xl shadow-sm border border-gray-100 transition-all duration-300 ${!produto.disponivel ? 'opacity-60' : 'hover:shadow-md'}`}>
-                  <div className="flex flex-col justify-center pr-4">
-                    <h3 className={`font-bold text-gray-800 text-lg leading-tight mb-1 ${!produto.disponivel ? 'line-through text-gray-500' : ''}`}>{produto.nome}</h3>
-                    <p className="text-orange-600 font-black">R$ {produto.preco.toFixed(2)}</p>
-                    {!produto.disponivel && <span className="text-xs text-red-500 font-bold mt-1 bg-red-50 w-max px-2 py-0.5 rounded">ESGOTADO</span>}
-                  </div>
+              {/* Lista de Produtos */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {produtos.length === 0 && (
+                    <div className="text-center mt-10 p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                      <p className="text-gray-500 font-medium">O cardápio está a ser atualizado...</p>
+                    </div>
+                )}
 
-                  {produto.disponivel && (
-                      <div className="flex items-center shrink-0">
-                        {qtdNoCarrinho > 0 ? (
-                            <div className="flex items-center bg-gray-50 border border-gray-200 rounded-full p-1 shadow-inner">
-                              <button onClick={() => removerDoCarrinho(produto.id)} className="bg-white p-1.5 rounded-full shadow-sm text-red-500 hover:bg-gray-100"><Minus size={18}/></button>
-                              <span className="w-8 text-center font-bold text-gray-700">{qtdNoCarrinho}</span>
-                              <button onClick={() => adicionarAoCarrinho(produto)} className="bg-orange-500 p-1.5 rounded-full shadow-sm text-white hover:bg-orange-600"><Plus size={18}/></button>
+                {produtos.filter(p => p.categoria === categoriaAtiva).map(produto => {
+                  const qtdNoCarrinho = carrinho.find(i => i.id === produto.id)?.quantidade || 0;
+                  return (
+                      <div key={produto.id} className={`flex justify-between items-center bg-white p-5 rounded-2xl shadow-sm border border-gray-100 transition-all duration-300 ${!produto.disponivel ? 'opacity-60' : 'hover:shadow-md'}`}>
+                        <div className="flex flex-col justify-center pr-4">
+                          <h3 className={`font-bold text-gray-800 text-lg leading-tight mb-1 ${!produto.disponivel ? 'line-through text-gray-500' : ''}`}>{produto.nome}</h3>
+                          <p className="text-orange-600 font-black">R$ {produto.preco.toFixed(2)}</p>
+                          {!produto.disponivel && <span className="text-xs text-red-500 font-bold mt-1 bg-red-50 w-max px-2 py-0.5 rounded">ESGOTADO</span>}
+                        </div>
+
+                        {produto.disponivel && (
+                            <div className="flex items-center shrink-0">
+                              {qtdNoCarrinho > 0 ? (
+                                  <div className="flex items-center bg-gray-50 border border-gray-200 rounded-full p-1 shadow-inner">
+                                    <button onClick={() => removerDoCarrinho(produto.id)} className="bg-white p-1.5 rounded-full shadow-sm text-red-500 hover:bg-gray-100"><Minus size={18}/></button>
+                                    <span className="w-8 text-center font-bold text-gray-700">{qtdNoCarrinho}</span>
+                                    <button onClick={() => adicionarAoCarrinho(produto)} className="bg-orange-500 p-1.5 rounded-full shadow-sm text-white hover:bg-orange-600"><Plus size={18}/></button>
+                                  </div>
+                              ) : (
+                                  <button onClick={() => adicionarAoCarrinho(produto)} className="bg-orange-50 text-orange-600 p-3 rounded-full border border-orange-100 hover:bg-orange-100">
+                                    <Plus size={24}/>
+                                  </button>
+                              )}
                             </div>
-                        ) : (
-                            <button onClick={() => adicionarAoCarrinho(produto)} className="bg-orange-50 text-orange-600 p-3 rounded-full border border-orange-100 hover:bg-orange-100">
-                              <Plus size={24}/>
-                            </button>
                         )}
                       </div>
-                  )}
-                </div>
-            );
-          })}
-        </div>
+                  );
+                })}
+              </div>
+            </>
+        ) : (
+            <EventosMenu />
+        )}
 
         {/* Modal de Checkout */}
         {mostrarCheckout && (
@@ -232,8 +258,8 @@ export default function ClienteMenu() {
             </div>
         )}
 
-        {/* Botão Flutuante Inferior */}
-        {carrinho.length > 0 && !mostrarCheckout && (
+        {/* Botão Flutuante Inferior (Apenas na aba de lanches) */}
+        {abaAtiva === 'lanches' && carrinho.length > 0 && !mostrarCheckout && (
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-transparent z-30">
               <button
                   onClick={() => setMostrarCheckout(true)}

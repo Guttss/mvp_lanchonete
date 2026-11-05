@@ -1,10 +1,7 @@
 package com.lanchonete.mvp.model;
 
 import com.lanchonete.mvp.model.enums.EnumStatus;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -19,6 +16,10 @@ public class Evento {
     private String nome;
     private String clienteTelefone;
     private String tipoEvento;
+
+    @Column(columnDefinition = "TEXT")
+    private String imagem;
+
     private LocalDateTime dataHoraEvento;
     private Integer quantidade;
     private String observacao;
